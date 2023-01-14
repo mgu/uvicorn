@@ -3,7 +3,7 @@ import socket
 from typing import TYPE_CHECKING, List, Optional
 
 from uvicorn import Config
-from uvicorn.supervisors import Multiprocess
+from uvicorn.supervisors.multiprocess import Multiprocess
 
 if TYPE_CHECKING:
     from asgiref.typing import ASGIReceiveCallable, ASGISendCallable, Scope

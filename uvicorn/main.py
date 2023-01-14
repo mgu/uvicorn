@@ -27,7 +27,6 @@ from uvicorn.config import (
     WSProtocolType,
 )
 from uvicorn.server import Server, ServerState  # noqa: F401  # Used to be defined here.
-from uvicorn.supervisors import ChangeReload, Multiprocess
 
 if typing.TYPE_CHECKING:
     from asgiref.typing import ASGIApplication
@@ -560,9 +559,14 @@ def run(
         sys.exit(1)
 
     if config.should_reload:
+        from uvicorn.supervisors import get_reload_class
+
         sock = config.bind_socket()
-        ChangeReload(config, target=server.run, sockets=[sock]).run()
+        reload_class = get_reload_class()
+        reload_class(config, target=server.run, sockets=[sock]).run()
     elif config.workers > 1:
+        from uvicorn.supervisors.multiprocess import Multiprocess
+
         sock = config.bind_socket()
         Multiprocess(config, target=server.run, sockets=[sock]).run()
     else:

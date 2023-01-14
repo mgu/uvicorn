@@ -1,21 +1,23 @@
 from typing import TYPE_CHECKING, Type
 
-from uvicorn.supervisors.basereload import BaseReload
-from uvicorn.supervisors.multiprocess import Multiprocess
-
 if TYPE_CHECKING:
-    ChangeReload: Type[BaseReload]
-else:
+    from uvicorn.supervisors.basereload import BaseReload
+
+
+def get_reload_class() -> "Type[BaseReload]":
     try:
-        from uvicorn.supervisors.watchfilesreload import (
-            WatchFilesReload as ChangeReload,
-        )
+        from uvicorn.supervisors.watchfilesreload import WatchFilesReload
+
+        return WatchFilesReload
     except ImportError:  # pragma: no cover
         try:
-            from uvicorn.supervisors.watchgodreload import (
-                WatchGodReload as ChangeReload,
-            )
-        except ImportError:
-            from uvicorn.supervisors.statreload import StatReload as ChangeReload
+            from uvicorn.supervisors.watchgodreload import WatchGodReload
 
-__all__ = ["Multiprocess", "ChangeReload"]
+            return WatchGodReload
+        except ImportError:
+            from uvicorn.supervisors.statreload import StatReload
+
+            return StatReload
+
+
+__all__ = ["get_reload_class"]
